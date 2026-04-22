@@ -10,13 +10,14 @@ exports.register = async ({ name, email, password }) => {
   }
 
   const hashedPassword = await hashPassword(password);
-  const userId = await userRepo.createUser({
+  
+  const user = await userRepo.createUser({
     name,
     email,
     password: hashedPassword,
   });
 
-  return { userId };
+  return { userId: user.id };;
 };
 
 exports.login = async ({ email, password }) => {

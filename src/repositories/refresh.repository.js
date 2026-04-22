@@ -1,16 +1,22 @@
-const db = require("../config/db");
+const prisma = require("../config/prisma");
 
 exports.saveToken = async (userId, token) => {
-  await db.execute(
-    "INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)",
-    [userId, token]
-  );
+  return await prisma.refreshToken.create({
+    data: {
+      userId,
+      token,
+    },
+  });
 };
 
 exports.findToken = async (token) => {
-  const [rows] = await db.execute(
-    "SELECT * FROM refresh_tokens WHERE token = ?",
-    [token]
-  );
-  return rows[0];
+  return await prisma.refreshToken.findFirst({
+    where: { token },
+  });
+};
+
+exports.deleteToken = async (token) => {
+  return await prisma.refreshToken.deleteMany({
+    where: { token },
+  });
 };

@@ -1,20 +1,24 @@
-const db = require("../config/db");
+const prisma = require("../config/prisma");
 
 exports.findByEmail = async (email) => {
-  const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
-  return rows[0];
+  return await prisma.user.findUnique({
+    where: { email },
+  });
 };
 
-exports.createUser = async (user) => {
-  const { name, email, password } = user;
-  const [result] = await db.execute(
-    "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-    [name, email, password]
-  );
-  return result.insertId;
+exports.createUser = async ({ name, email, password }) => {
+  return await prisma.user.create({
+    data: { name, email, password },
+  });
 };
 
 exports.getUserById = async (id) => {
-  const [rows] = await db.execute("SELECT id, name, email FROM users WHERE id = ?", [id]);
-  return rows[0];
+  return await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
 };
