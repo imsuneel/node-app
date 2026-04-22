@@ -1,6 +1,7 @@
 const userRepo = require("../repositories/user.repository");
 const { hashPassword, comparePassword } = require("../utils/hash");
-const { generateToken } = require("../utils/jwt");
+const refreshRepo = require("../repositories/refresh.repository");
+const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 
 exports.register = async ({ name, email, password }) => {
   const existingUser = await userRepo.findByEmail(email);
@@ -25,7 +26,10 @@ exports.login = async ({ email, password }) => {
   const isMatch = await comparePassword(password, user.password);
   if (!isMatch) throw new Error("Invalid credentials");
 
-  const token = generateToken({ id: user.id });
+  const accessToken = generateAccessToken({ id: user.id });
+  const refreshToken = generateRefreshToken({ id: user.id });
 
-  return { token };
+  await refreshRepo.saveToken(user.id, refreshToken);
+
+  return { accessToken, refreshToken };
 };
